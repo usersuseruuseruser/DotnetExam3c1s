@@ -11,9 +11,9 @@
       MongoOptions__ConnectionString: mongodb://mongo-db:27017
       MongoOptions__DatabaseName: RatingDb
       MongoOptions__CollectionName: Rating
-      JwtOptions__Issuer: http://abracadabra.dotnet.com
-      JwtOptions__Audience: http://game.dotnet.com
-      JwtOptions__Key: HelloWorldDotnetExam25012024JsonWebToken13579
+      JwtOptions__Issuer: http://example.com
+      JwtOptions__Audience: http://example.com
+      JwtOptions__Key: 943573894759348593845793
     depends_on:
       - postgres
       - mongo-db

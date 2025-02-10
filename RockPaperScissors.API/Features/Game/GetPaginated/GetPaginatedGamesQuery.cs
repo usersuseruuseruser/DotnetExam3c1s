@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using api.Features.Game.Create;
 using api.Helpers;
 using api.Helpers.CQRS;
 
-namespace api.Features.Ratings;
+namespace api.Features.Game.GetPaginated;
 
-public class PaginatedRatingsQuery: IQuery<PaginationWrapper<UserRatingDto>>
+public class GetPaginatedGamesQuery: IQuery<Result<PaginationWrapper<GameDto>>>
 {
     [Range(0, int.MaxValue, ErrorMessage = "Страница должна быть больше или равно нулю")]
     [Required]
