@@ -12,7 +12,7 @@ using api.DataAccess;
 namespace api.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250210192832_Initial")]
+    [Migration("20250210212817_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -42,20 +42,6 @@ namespace api.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("api.Domain.UserRating", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("UserRatings");
                 });
 #pragma warning restore 612, 618
         }

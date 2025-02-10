@@ -1,22 +1,27 @@
 ﻿using api.DataAccess;
 using api.Domain;
 using api.Helpers;
+using api.Helpers.CQRS;
+using api.Repositories;
 using api.Services.Jwt;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace api.Features.Auth.Register;
 
-public class UserRegisterCommandHandler: IRequestHandler<UserRegisterCommand, Result<string>>
+public class UserRegisterCommandHandler: ICommandHandler<UserRegisterCommand, Result<string>>
 {
     private readonly AppDbContext _dbContext;
     private readonly IPasswordHasher<object> _passwordHasher;
+    private readonly IUserRatingsRepository _ratingsRepository;
 
-    public UserRegisterCommandHandler(AppDbContext dbContext, IPasswordHasher<object> passwordHasher)
+    public UserRegisterCommandHandler(AppDbContext dbContext, IPasswordHasher<object> passwordHasher, IUserRatingsRepository ratingsRepository)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
+        _ratingsRepository = ratingsRepository;
     }
 
     public async Task<Result<string>> Handle(UserRegisterCommand request, CancellationToken cancellationToken)
@@ -25,9 +30,10 @@ public class UserRegisterCommandHandler: IRequestHandler<UserRegisterCommand, Re
         {
             return Result<string>.Failure(StatusCodes.Status400BadRequest, "Пароли не совпадают");
         }
-
+        
         var user = new User()
         {
+            Id = Guid.NewGuid(),
             Username = request.Username,
             Password = _passwordHasher.HashPassword(null, request.Password)
         };
@@ -46,7 +52,8 @@ public class UserRegisterCommandHandler: IRequestHandler<UserRegisterCommand, Re
         {
             return Result<string>.Failure(StatusCodes.Status500InternalServerError, "Что-то пошло не так");
         }
-        
+
+        await _ratingsRepository.InsertOneAsync(user.Id, 0);
         return Result<string>.Success("Вы успешно зарегистрировались");
     }
 

@@ -3,6 +3,7 @@ using System.Text;
 using api.AppLogic;
 using api.DataAccess;
 using api.HostedServices;
+using api.Repositories;
 using api.Services.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,14 @@ builder.Services.Configure<MongoOptions>(builder.Configuration.GetSection("Mongo
 builder.Services.Configure<PostgresOptions>(builder.Configuration.GetSection("PostgresOptions"));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHostedService<DbContextMigration>();
+builder.Services.AddScoped<IUserRatingsRepository, UserRatingsRepository>();
+builder.Services.AddScoped<IMongoDatabase>((sp) =>
+{
+    var connectionString = sp.GetRequiredService<IOptions<MongoOptions>>().Value.ConnectionString;
+    
+    var mongoClient = new MongoClient(connectionString);
+    return mongoClient.GetDatabase("main");
+});
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });

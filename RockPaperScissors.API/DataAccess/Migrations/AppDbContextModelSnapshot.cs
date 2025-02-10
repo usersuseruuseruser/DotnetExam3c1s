@@ -40,20 +40,6 @@ namespace api.DataAccess.Migrations
 
                     b.ToTable("Users");
                 });
-
-            modelBuilder.Entity("api.Domain.UserRating", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("UserRatings");
-                });
 #pragma warning restore 612, 618
         }
     }

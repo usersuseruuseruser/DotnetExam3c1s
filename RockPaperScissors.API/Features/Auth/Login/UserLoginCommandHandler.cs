@@ -1,12 +1,13 @@
 ﻿using api.DataAccess;
 using api.Helpers;
+using api.Helpers.CQRS;
 using api.Services.Jwt;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
 namespace api.Features.Auth.Login;
 
-public class UserLoginCommandHandler: IRequestHandler<UserLoginCommand, Result<string>>
+public class UserLoginCommandHandler: ICommandHandler<UserLoginCommand, Result<string>>
 {
     private readonly IJwtGenerator _jwtGenerator;
     private readonly AppDbContext _dbContext;

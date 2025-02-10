@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using api.Helpers;
+using api.Helpers.CQRS;
 using MediatR;
 
 namespace api.Features.Auth.Register;
 
-public class UserRegisterCommand: IRequest<Result<string>>
+public class UserRegisterCommand: ICommand<Result<string>>
 {
     [Required]
     public string Username { get; set; }
