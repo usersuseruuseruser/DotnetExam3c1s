@@ -1,0 +1,38 @@
+﻿services:
+  rockpaperscissors.api:
+    image: rockpaperscissors.api
+    build:
+      context: .
+      dockerfile: RockPaperScissors.API/Dockerfile
+    ports:
+      - "8000:8080"
+    environment:
+      PostgresOptions__DefaultConnection : Server=postgres;Port=5432;Database=postgres;User Id=postgres;Password=postgres;
+      MongoOptions__ConnectionString: mongodb://mongo-db:27017
+      MongoOptions__DatabaseName: RatingDb
+      MongoOptions__CollectionName: Rating
+      JwtOptions__Issuer: http://abracadabra.dotnet.com
+      JwtOptions__Audience: http://game.dotnet.com
+      JwtOptions__Key: HelloWorldDotnetExam25012024JsonWebToken13579
+    depends_on:
+      - postgres
+      - mongo-db
+      
+  postgres:
+    image: postgres:alpine
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5450:5432'
+  
+  mongo-db:
+    image: mongo
+    container_name: mongo-db
+    restart: always
+    ports:
+      - "27018:27017"
+            
