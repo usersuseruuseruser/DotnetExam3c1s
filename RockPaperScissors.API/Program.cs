@@ -141,7 +141,6 @@ if (app.Environment.IsDevelopment())
 app.MapHub<GameHub>("/game");
 app.UseCors("MyCustomPolicy");
 app.MapControllers();
-app.UseHttpsRedirection();
 
 app.Run();
 
