@@ -138,7 +138,7 @@ public class GameHub: Hub<IGameHubClient>
                 }
                 
                 await Clients.Client(Context.ConnectionId).SuccessJoin(JoinRole.Player);
-                await Clients.Client(Context.ConnectionId).MessageReceive(
+                await Clients.Groups(new[] { playersGroup, gameId.ToString() }).MessageReceive(
                     new ChatMessageDto()
                     {
                         From = "Игра",
@@ -355,11 +355,13 @@ public class GameHub: Hub<IGameHubClient>
     
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        
         if (UserGroupsConnections.TryGetValue(Context.ConnectionId, out var userGroups))
         {
+            var username = Context.User?.Identity?.Name!;
+
             if (!string.IsNullOrEmpty(userGroups.GameGroup))
             {
-                var username = Context.User?.Identity?.Name!;
                 var userId = new Guid(Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
             
                 var parts = userGroups.GameGroup.Split('_');
@@ -391,6 +393,13 @@ public class GameHub: Hub<IGameHubClient>
                 }
             }
         
+            else if (userGroups.RoomGroup != Guid.Empty)
+            {
+                var gameId = userGroups.RoomGroup;
+                await Clients.Groups(new[] { gameId.ToString(), $"{gameId}_game" })
+                    .MessageReceive(new ChatMessageDto { From = "Игра", Text = $"Наблюдатель {username} вышел" });
+            }
+            
             UserGroupsConnections.TryRemove(Context.ConnectionId, out _);
         }
     
