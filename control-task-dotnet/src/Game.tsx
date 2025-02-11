@@ -24,7 +24,7 @@ export const Game = () => {
   const [chatInput, setChatInput] = useState("");
   console.log(chatHistory);
   const onJoinGame = (role: number) => {
-    setIsWatcher(role > 1);
+    setIsWatcher(role == 1);
     axios
       .get(`${API_URL}/game/${location.state.gameId}`, {
         headers: { Authorization: "Bearer " + localStorage.getItem("token") },
