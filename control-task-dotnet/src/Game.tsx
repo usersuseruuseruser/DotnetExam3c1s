@@ -6,6 +6,7 @@ import {
   HubConnectionBuilder,
 } from "@microsoft/signalr";
 import { API_URL } from "./constants.ts";
+import axios from "axios";
 
 export const Game = () => {
   const location = useLocation();
@@ -21,14 +22,24 @@ export const Game = () => {
   const navigate = useNavigate();
   const onJoinGame = (role: number) => {
     setIsWatcher(role > 1);
+    axios
+      .get(`${API_URL}/game/${location.state.gameId}`, {
+        headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+      })
+      .then((resp) => {
+        setResult(resp.data);
+      });
   };
-  const onMessageRecv = (message: string) => {
-    setChatHistory([...chatHistory, message]);
+  const MessageReceive = (msg) => {
+    setChatHistory([...chatHistory, `${msg.from}:${msg.text}`]);
   };
-  const onResultRecv = (action1: string, action2: string, result: string) => {
-    setAction1(action1);
-    setAction2(action2);
-    setResult(result);
+  const onOtherMove = () => {
+    console.log("move");
+  };
+  const onResultRecv = (data) => {
+    setAction1(data.winnerFigure);
+    setAction2(data.looserFigure);
+    setResult(data.message);
     setIsRoundEnded(true);
   };
   const submitAction = (act: string) => {
@@ -40,7 +51,6 @@ export const Game = () => {
           act === "Stone" ? 0 : act === "Scissors" ? 1 : 2,
         )
         .then(() => {
-          console.log("asd");
           setIsChoosed(true);
         });
     }
@@ -58,8 +68,9 @@ export const Game = () => {
       .withAutomaticReconnect()
       .build();
     connectionInstanse.on("SuccessJoin", onJoinGame);
-    connectionInstanse.on("onMessageRecv", onMessageRecv);
-    connectionInstanse.on("onResultRecv", onResultRecv);
+    connectionInstanse.on("MessageReceive", MessageReceive);
+    connectionInstanse.on("ResultReceive", onResultRecv);
+    connectionInstanse.on("AnotherPlayerMadeMove", onOtherMove);
     connectionInstanse.start().then(() => {
       connectionInstanse.invoke("JoinGame", location.state.gameId).then(() => {
         setConnection(connectionInstanse);
@@ -79,6 +90,7 @@ export const Game = () => {
     } else if (isRoundEnded && countdown === 0) {
       setCountdown(3);
       setIsRoundEnded(false);
+      setIsChoosed(false);
     }
   }, [countdown, isRoundEnded]);
   return (
