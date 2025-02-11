@@ -4,6 +4,7 @@ import { API_URL } from "./constants.ts";
 import { GameRoom } from "./types/gameRoom.ts";
 import { AuthContext } from "./authContext.ts";
 import { useNavigate } from "react-router-dom";
+import { Ratings } from "./Ratings.tsx";
 
 export const GamesList = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -17,6 +18,7 @@ export const GamesList = () => {
   }, [currentPage]);
   const { userId } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOnJounGame = (gameId: string) => {
     navigate("/main", { state: { gameId: gameId, userId: userId } });
@@ -24,6 +26,7 @@ export const GamesList = () => {
 
   return (
     <div>
+      {isModalOpen && <Ratings setIsModalOpen={setIsModalOpen} />}
       <h1>Games</h1>
       <div>
         {games.map((game) => (
@@ -37,9 +40,16 @@ export const GamesList = () => {
       </div>
       <button onClick={() => setCurrentPage(currentPage + 1)}>Далее</button>
       <button onClick={() => setCurrentPage(currentPage - 1)}>Назад</button>
+
       <footer>
         <button>Create Game</button>
-        <button>Show Stats</button>
+        <button
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+        >
+          Show Stats
+        </button>
       </footer>
     </div>
   );
