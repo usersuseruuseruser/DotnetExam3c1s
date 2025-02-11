@@ -133,7 +133,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapHub<GameHub>("/game");
+
 app.UseCors(corsBuilder =>
 {
     corsBuilder
@@ -147,6 +147,7 @@ app.UseCors(corsBuilder =>
             return origin.ToLower().StartsWith("http://localhost") || origin.ToLower().StartsWith("https://localhost");
         });
 });
+app.MapHub<GameHub>("/game");
 app.MapControllers();
 
 app.Run();

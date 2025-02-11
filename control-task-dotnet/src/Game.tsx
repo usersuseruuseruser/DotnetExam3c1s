@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   HttpTransportType,
@@ -18,6 +18,7 @@ export const Game = () => {
   const [countdown, setCountdown] = useState(3);
   const [connection, setConnection] = useState<HubConnection>();
   const [isChoosed, setIsChoosed] = useState(false);
+  const navigate = useNavigate();
   const onJoinGame = (ownerId: string, playerId: string, chat: string[]) => {
     setChatHistory(chat);
     setIsWatcher(
@@ -43,7 +44,13 @@ export const Game = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const connectionInstanse = new HubConnectionBuilder()
-      .withUrl(`${API_URL}/game`)
+      .withUrl(`${API_URL}/game`, {
+        accessTokenFactory(): string | Promise<string> {
+          return token || "";
+        },
+        transport: HttpTransportType.WebSockets,
+        skipNegotiation: true,
+      })
       .withAutomaticReconnect()
       .build();
     connectionInstanse.on("onJoinGame", onJoinGame);
@@ -75,7 +82,13 @@ export const Game = () => {
   return (
     <>
       <header>
-        <button>Главная</button>
+        <button
+          onClick={() => {
+            navigate("/games");
+          }}
+        >
+          Главная
+        </button>
       </header>
       <div className={"flex flex-row"}>
         <div>
