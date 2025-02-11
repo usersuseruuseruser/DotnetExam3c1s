@@ -183,6 +183,7 @@ public class GameHub: Hub<IGameHubClient>
         }
     }
 
+    [Obsolete]
     public async Task RestartGame(Guid gameId)
     {
         var query = new GetSingleGameQuery() { GameId = gameId };
@@ -224,7 +225,7 @@ public class GameHub: Hub<IGameHubClient>
     }
 
     
-    public async Task MakeMove(Guid gameId, Figure figure)
+    public async Task SubmitAction(Guid gameId, Figure figure)
     {
         if (!UserGroupsConnections.TryGetValue(Context.ConnectionId, out var groups) ||
             string.IsNullOrEmpty(groups.GameGroup))
