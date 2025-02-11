@@ -1,0 +1,54 @@
+﻿services:
+  rockpaperscissors.api:
+    image: rockpaperscissors.api
+    build:
+      context: .
+      dockerfile: RockPaperScissors.API/Dockerfile
+    ports:
+      - "8000:8080"
+    environment:
+      PostgresOptions__DefaultConnection : Server=postgres;Port=5432;Database=postgres;User Id=postgres;Password=postgres;
+      MongoOptions__ConnectionString: mongodb://mongo-db:27017
+      MongoOptions__DatabaseName: RatingDb
+      MongoOptions__CollectionName: Rating
+      RabbitMqOptions__Username: qwerty
+      RabbitMqOptions__Password: qwerty
+      RabbitMqOptions__Host: amqp://rabbitmq:5672
+      JwtOptions__Issuer: http://example.com
+      JwtOptions__Audience: http://example.com
+      JwtOptions__Key: HotPuppyPuppySuper121212123132superpuper
+    depends_on:
+      - postgres
+      - mongo-db
+      - rabbitmq
+      
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.10.7-management
+    hostname: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: qwerty
+      RABBITMQ_DEFAULT_PASS: qwerty
+    ports:
+      - 15672:15672
+      - 5672:5672    
+      
+  postgres:
+    image: postgres:alpine
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5450:5432'
+  
+  mongo-db:
+    image: mongo
+    container_name: mongo-db
+    restart: always
+    ports:
+      - "27018:27017"
+            
