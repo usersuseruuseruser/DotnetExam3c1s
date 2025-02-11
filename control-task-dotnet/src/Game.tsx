@@ -19,11 +19,8 @@ export const Game = () => {
   const [connection, setConnection] = useState<HubConnection>();
   const [isChoosed, setIsChoosed] = useState(false);
   const navigate = useNavigate();
-  const onJoinGame = (ownerId: string, playerId: string, chat: string[]) => {
-    setChatHistory(chat);
-    setIsWatcher(
-      location.state.userId !== ownerId && location.state.userId !== playerId,
-    );
+  const onJoinGame = (role: number) => {
+    setIsWatcher(role > 1);
   };
   const onMessageRecv = (message: string) => {
     setChatHistory([...chatHistory, message]);
@@ -36,9 +33,16 @@ export const Game = () => {
   };
   const submitAction = (act: string) => {
     if (connection) {
-      connection.invoke("SubmitAction", location.state.userId, act).then(() => {
-        setIsChoosed(true);
-      });
+      connection
+        .invoke(
+          "SubmitAction",
+          location.state.gameId,
+          act === "Stone" ? 0 : act === "Scissors" ? 1 : 2,
+        )
+        .then(() => {
+          console.log("asd");
+          setIsChoosed(true);
+        });
     }
   };
   useEffect(() => {
@@ -53,16 +57,14 @@ export const Game = () => {
       })
       .withAutomaticReconnect()
       .build();
-    connectionInstanse.on("onJoinGame", onJoinGame);
+    connectionInstanse.on("SuccessJoin", onJoinGame);
     connectionInstanse.on("onMessageRecv", onMessageRecv);
     connectionInstanse.on("onResultRecv", onResultRecv);
     connectionInstanse.start().then(() => {
-      connectionInstanse
-        .invoke("JoinGame", location.state.userId, location.state.gameId)
-        .then(() => {
-          setConnection(connectionInstanse);
-          console.log("Joined");
-        });
+      connectionInstanse.invoke("JoinGame", location.state.gameId).then(() => {
+        setConnection(connectionInstanse);
+        console.log("Joined");
+      });
     });
     return () => {
       connectionInstanse.stop().then(() => {
