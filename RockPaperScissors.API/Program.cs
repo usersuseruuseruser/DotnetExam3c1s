@@ -93,7 +93,7 @@ builder.Services.AddAuthentication(x =>
                 var path = context.HttpContext.Request.Path;
                         
                 if (!string.IsNullOrEmpty(accessToken) &&
-                    path.StartsWithSegments("/gamehub"))
+                    path.StartsWithSegments("/game"))
                 {
                     context.Token = accessToken;
                 }
