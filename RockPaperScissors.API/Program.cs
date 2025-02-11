@@ -145,6 +145,9 @@ app.UseCors(corsBuilder =>
             return origin.ToLower().StartsWith("http://localhost") || origin.ToLower().StartsWith("https://localhost");
         });
 });
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapHub<GameHub>("/game");
 app.MapControllers();
 
