@@ -7,10 +7,11 @@ import {
 } from "@microsoft/signalr";
 import { API_URL } from "./constants.ts";
 import axios from "axios";
+import { GameMessage } from "./types/gameMessage.ts";
 
 export const Game = () => {
   const location = useLocation();
-  const [chatHistory, setChatHistory] = useState<string[]>([]);
+  const [chatHistory, setChatHistory] = useState<GameMessage[]>([]);
   const [isWatcher, setIsWatcher] = useState(true);
   const [action1, setAction1] = useState("");
   const [action2, setAction2] = useState("");
@@ -20,6 +21,8 @@ export const Game = () => {
   const [connection, setConnection] = useState<HubConnection>();
   const [isChoosed, setIsChoosed] = useState(false);
   const navigate = useNavigate();
+  const [chatInput, setChatInput] = useState("");
+  console.log(chatHistory);
   const onJoinGame = (role: number) => {
     setIsWatcher(role > 1);
     axios
@@ -27,11 +30,11 @@ export const Game = () => {
         headers: { Authorization: "Bearer " + localStorage.getItem("token") },
       })
       .then((resp) => {
-        setResult(resp.data);
+        setChatHistory(resp.data.messages);
       });
   };
-  const MessageReceive = (msg) => {
-    setChatHistory([...chatHistory, `${msg.from}:${msg.text}`]);
+  const MessageReceive = (msg: GameMessage) => {
+    setChatHistory((prev) => [...prev, msg]);
   };
   const onOtherMove = () => {
     console.log("move");
@@ -41,6 +44,11 @@ export const Game = () => {
     setAction2(data.looserFigure);
     setResult(data.message);
     setIsRoundEnded(true);
+  };
+  const onError = (msg) => {
+    console.log(msg);
+    setChatHistory([...chatHistory, msg]);
+    console.log(chatHistory);
   };
   const submitAction = (act: string) => {
     if (connection) {
@@ -71,6 +79,7 @@ export const Game = () => {
     connectionInstanse.on("MessageReceive", MessageReceive);
     connectionInstanse.on("ResultReceive", onResultRecv);
     connectionInstanse.on("AnotherPlayerMadeMove", onOtherMove);
+    connectionInstanse.on("SomethingWentWrong", onError);
     connectionInstanse.start().then(() => {
       connectionInstanse.invoke("JoinGame", location.state.gameId).then(() => {
         setConnection(connectionInstanse);
@@ -107,8 +116,33 @@ export const Game = () => {
       <div className={"flex flex-row"}>
         <div>
           {chatHistory.map((message, index) => (
-            <div key={index}>{message}</div>
+            <div key={index}>
+              {message.from}:{message.text}
+            </div>
           ))}
+          <div className={"flex flex-row"}>
+            <input
+              onChange={(e) => {
+                setChatInput(e.target.value);
+              }}
+            />
+            <button
+              onClick={() => {
+                if (connection)
+                  connection
+                    .invoke(
+                      "SendMessageToChat",
+                      location.state.gameId,
+                      chatInput,
+                    )
+                    .then(() => {
+                      console.log("send");
+                    });
+              }}
+            >
+              Отправить
+            </button>
+          </div>
         </div>
         <div>
           <div>Игрок1</div>
