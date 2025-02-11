@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { AuthContext } from "./authContext.ts";
 import axios from "axios";
 import { API_URL } from "./constants.ts";
+import { useNavigate } from "react-router-dom";
 
 export const Register = () => {
   const { login } = React.useContext(AuthContext);
@@ -9,6 +10,7 @@ export const Register = () => {
   const [password, setPassword] = useState("");
   const [repeatedPassword, setRepeatedPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -20,11 +22,12 @@ export const Register = () => {
         setError(`Пароль пустой`);
         return;
       }
-      const response = await axios.post(`${API_URL}/register`, {
-        username,
-        password,
+      await axios.post(`${API_URL}/register`, {
+        username: username,
+        password: password,
+        passwordConfirmation: repeatedPassword,
       });
-      localStorage.setItem("token", response.data.token);
+      navigate("/");
       login();
     } catch (err) {
       setError(`Invalid credentials ${err}`);

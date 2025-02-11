@@ -1,6 +1,10 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import {
+  HttpTransportType,
+  HubConnection,
+  HubConnectionBuilder,
+} from "@microsoft/signalr";
 import { API_URL } from "./constants.ts";
 
 export const Game = () => {
@@ -37,8 +41,9 @@ export const Game = () => {
     }
   };
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const connectionInstanse = new HubConnectionBuilder()
-      .withUrl(`${API_URL}/games`)
+      .withUrl(`${API_URL}/game`)
       .withAutomaticReconnect()
       .build();
     connectionInstanse.on("onJoinGame", onJoinGame);

@@ -1,5 +1,7 @@
 export type GameRoom = {
-  id: string;
-  dateTime: string;
+  gameId: string;
+  date: string;
   ownerName: string;
+  maxRating: number;
+  status: number;
 };

@@ -2,12 +2,14 @@ import axios from "axios";
 import { API_URL } from "./constants.ts";
 import React, { useState } from "react";
 import { AuthContext } from "./authContext.ts";
+import { useNavigate } from "react-router-dom";
 
 export const StartPage = () => {
-  const { login } = React.useContext(AuthContext);
+  const { setIsAuthenticated } = React.useContext(AuthContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -23,8 +25,9 @@ export const StartPage = () => {
         username,
         password,
       });
-      localStorage.setItem("token", response.data.token);
-      login();
+      localStorage.setItem("token", response.data);
+      navigate("/games");
+      setIsAuthenticated(true);
     } catch (err) {
       setError(`Invalid credentials ${err}`);
     }

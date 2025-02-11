@@ -1,8 +1,9 @@
-import React, {JSX} from "react";
-import {Navigate} from "react-router-dom";
-import {AuthContext} from "./authContext.ts";
+import React, { JSX } from "react";
+import { Navigate } from "react-router-dom";
 
-export const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
-    const { isAuthenticated } = React.useContext(AuthContext);
-    return isAuthenticated ? element : <Navigate to="/" />;
+export const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({
+  element,
+}) => {
+  const isAuthenticated = localStorage.getItem("token");
+  return isAuthenticated ? element : <Navigate to="/" />;
 };
