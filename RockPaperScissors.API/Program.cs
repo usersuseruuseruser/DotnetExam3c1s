@@ -27,12 +27,7 @@ builder.Services.AddSignalR();
 builder.Services.AddHostedService<DbContextMigration>();
 builder.Services.AddHostedService<OldGamesRemover>();
 builder.Services.AddScoped<IUserRatingsRepository, UserRatingsRepository>();
-builder.Services.AddCors(options => options.AddPolicy("MyCustomPolicy", pb
-    => pb
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowAnyOrigin()
-));
+builder.Services.AddCors();
 
 builder.Services.AddScoped<IMongoDatabase>((sp) =>
 {
@@ -139,7 +134,19 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapHub<GameHub>("/game");
-app.UseCors("MyCustomPolicy");
+app.UseCors(corsBuilder =>
+{
+    corsBuilder
+        .AllowCredentials()
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .SetIsOriginAllowed(origin =>
+        {
+            if (string.IsNullOrWhiteSpace(origin)) return false;
+
+            return origin.ToLower().StartsWith("http://localhost") || origin.ToLower().StartsWith("https://localhost");
+        });
+});
 app.MapControllers();
 
 app.Run();
