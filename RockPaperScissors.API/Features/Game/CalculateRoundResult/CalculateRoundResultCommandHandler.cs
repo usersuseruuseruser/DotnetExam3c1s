@@ -53,7 +53,7 @@ public class CalculateRoundResultCommandHandler: ICommandHandler<CalculateRoundR
             };
             var updateInfo2 = new UpdateInfo
             {
-                UserId = request.UserMove1.UserId,
+                UserId = request.UserMove2.UserId,
                 Delta = -1
             };
             await _publishEndpoint.Publish(new UpdateUsersRatings(updateInfo1, updateInfo2), cancellationToken);
@@ -73,7 +73,7 @@ public class CalculateRoundResultCommandHandler: ICommandHandler<CalculateRoundR
             };
             var updateInfo2 = new UpdateInfo
             {
-                UserId = request.UserMove1.UserId,
+                UserId = request.UserMove2.UserId,
                 Delta = 3
             };
             await _publishEndpoint.Publish(new UpdateUsersRatings(updateInfo1, updateInfo2), cancellationToken);
