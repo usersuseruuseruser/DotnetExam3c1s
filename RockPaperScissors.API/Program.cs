@@ -1,10 +1,13 @@
 using System.Reflection;
 using System.Text;
-using api.AppLogic;
+using api.AppOptions;
+using api.Consumers;
 using api.DataAccess;
 using api.HostedServices;
+using api.Hubs;
 using api.Repositories;
 using api.Services.Jwt;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -13,15 +16,24 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.Configure<MongoOptions>(builder.Configuration.GetSection("MongoOptions"));
 builder.Services.Configure<PostgresOptions>(builder.Configuration.GetSection("PostgresOptions"));
+var rabbitMqConfig = builder.Configuration.GetSection("RabbitMqOptions").Get<RabbitMqOptions>();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSignalR();
 builder.Services.AddHostedService<DbContextMigration>();
+builder.Services.AddHostedService<OldGamesRemover>();
 builder.Services.AddScoped<IUserRatingsRepository, UserRatingsRepository>();
+builder.Services.AddCors(options => options.AddPolicy("MyCustomPolicy", pb
+    => pb
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowAnyOrigin()
+));
+
 builder.Services.AddScoped<IMongoDatabase>((sp) =>
 {
     var connectionString = sp.GetRequiredService<IOptions<MongoOptions>>().Value.ConnectionString;
@@ -78,6 +90,22 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
+builder.Services.AddMassTransit(x =>
+{
+    x.SetKebabCaseEndpointNameFormatter();
+    x.AddConsumer<UsersRatingsUpdateConsumer>();
+
+    x.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host(new Uri(rabbitMqConfig!.Host), h =>
+        {
+            h.Username(rabbitMqConfig.Username);
+            h.Password(rabbitMqConfig.Password);
+        });
+        
+        cfg.ConfigureEndpoints(ctx);
+    });
+});
 builder.Services.AddDbContext<AppDbContext>((sp, c) =>
 {
     var connectionString = sp.GetRequiredService<IOptions<PostgresOptions>>().Value.DefaultConnection;
@@ -94,6 +122,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapHub<GameHub>("/game");
+app.UseCors("MyCustomPolicy");
 app.MapControllers();
 app.UseHttpsRedirection();
 

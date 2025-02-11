@@ -1,6 +1,8 @@
 ﻿using System.Security.Claims;
 using api.Features.Game.Create;
+using api.Features.Game.GetMessages;
 using api.Features.Game.GetPaginated;
+using api.Features.Game.GetSingle;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +21,16 @@ public class GameController: ControllerBase
         _mediator = mediator;
     }
 
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetSingle(Guid id)
+    {
+        var messagesQuery = new GameMessagesQuery(){GameId = id};
+        
+        var result = await _mediator.Send(messagesQuery);
+        
+        return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode!.Value, result.ErrorMessage);
+    }
+    
     [HttpPost("create")]
     public async Task<IActionResult> Create(CreateGameCommand command)
     {
@@ -30,7 +42,7 @@ public class GameController: ControllerBase
         }
         
         command.UserId = new Guid(userId);
-
+        
         var result = await _mediator.Send(command);
 
         return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode!.Value, result.ErrorMessage);

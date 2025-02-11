@@ -22,14 +22,10 @@ public class GetPaginatedGamesQueryHandler: IQueryHandler<GetPaginatedGamesQuery
             .Include(g => g.Creator)
             .Select(g => new
             {
-                Game = g,
-                SortKey = (g.GameStatus == GameStatus.Created ? 1 : 0) +
-                          (g.GameStatus == GameStatus.Started ? 2 : 0) + 
-                          (g.GameStatus == GameStatus.Finished ? 3 : 0)
-                    
+                Game = g
             })
-            .OrderBy(g => g.SortKey)
-            .ThenByDescending(g => g.Game.CreatedAt)
+            .OrderBy(g => g.Game.GameStatus)
+            .ThenBy(g => g.Game.CreatedAt)
             .Skip(request.Page * request.Count)
             .Take(request.Count)
             .Select(g => new GameDto()

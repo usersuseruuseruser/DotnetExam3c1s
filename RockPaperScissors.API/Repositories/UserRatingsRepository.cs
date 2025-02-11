@@ -29,6 +29,13 @@ public class UserRatingsRepository: IUserRatingsRepository
         return new PaginationWrapper<UserRating>(data, page, count, countTotal);
     }
 
+    public async Task<UserRating?> GetSingle(Guid userId)
+    {
+        return await _ratings
+            .Find(r => r.UserId == userId)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task InsertOneAsync(Guid userId, int rating)
     {
         await _ratings.InsertOneAsync(new UserRating
@@ -36,5 +43,12 @@ public class UserRatingsRepository: IUserRatingsRepository
             UserId = userId,
             Rating = 0
         });
+    }
+
+    public Task UpdateOneAsync(Guid userId, int rating)
+    {
+        var filter = Builders<UserRating>.Filter.Eq(entity => entity.UserId, userId);
+        var update = Builders<UserRating>.Update.Set(entity => entity.Rating, rating);
+        return _ratings.UpdateOneAsync(filter, update);
     }
 }

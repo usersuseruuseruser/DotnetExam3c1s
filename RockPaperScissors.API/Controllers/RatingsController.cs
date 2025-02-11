@@ -1,10 +1,12 @@
 ﻿using api.Features.Ratings;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
 [ApiController]
+[Authorize]
 public class RatingsController: ControllerBase
 {
     private readonly IMediator _mediator;

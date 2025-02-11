@@ -31,7 +31,7 @@ public class UserRegisterCommandHandler: ICommandHandler<UserRegisterCommand, Re
             return Result<string>.Failure(StatusCodes.Status400BadRequest, "Пароли не совпадают");
         }
         
-        var user = new User()
+        var user = new Domain.User()
         {
             Id = Guid.NewGuid(),
             Username = request.Username,

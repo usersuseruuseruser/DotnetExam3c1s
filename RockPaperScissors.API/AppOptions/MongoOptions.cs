@@ -1,4 +1,4 @@
-﻿namespace api.AppLogic;
+﻿namespace api.AppOptions;
 
 public class MongoOptions
 {
