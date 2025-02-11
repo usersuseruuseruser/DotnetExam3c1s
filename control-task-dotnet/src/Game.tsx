@@ -41,7 +41,7 @@ export const Game = () => {
   };
   const onResultRecv = (data) => {
     setAction1(data.winnerFigure);
-    setAction2(data.looserFigure);
+    setAction2(data.loserFigure);
     setResult(data.message);
     setIsRoundEnded(true);
   };
