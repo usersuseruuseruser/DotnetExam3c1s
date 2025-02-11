@@ -341,7 +341,8 @@ public class GameHub: Hub<IGameHubClient>
         
         if (cResult.IsSuccess)
         {
-            await Clients.Group(gameId.ToString()).MessageReceive(new ChatMessageDto(){From = username, Text = message});
+            await Clients.Groups(new[] { gameId.ToString(), $"{gameId}_game" })
+                .MessageReceive(new ChatMessageDto(){ From = username, Text = message });
         }
         else
         {
