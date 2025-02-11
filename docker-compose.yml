@@ -23,6 +23,7 @@
       - postgres
       - mongo-db
       - rabbitmq
+    restart: always
       
   rabbitmq:
     container_name: rabbitmq
@@ -53,4 +54,12 @@
     restart: always
     ports:
       - "27018:27017"
+        
+  frontend:
+    build:
+      context: ./control-task-dotnet
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+
             
