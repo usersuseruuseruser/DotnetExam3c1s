@@ -23,8 +23,6 @@ function App() {
               path="/main"
               element={<ProtectedRoute element={<Game />} />}
             />
-            <Route path="/1" element={<GamesList />} />
-            <Route path="/2" element={<Game />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

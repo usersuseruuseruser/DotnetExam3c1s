@@ -46,9 +46,7 @@ export const Game = () => {
     setIsRoundEnded(true);
   };
   const onError = (msg) => {
-    console.log(msg);
-    setChatHistory([...chatHistory, msg]);
-    console.log(chatHistory);
+    setChatHistory((prev) => [...prev, msg]);
   };
   const submitAction = (act: string) => {
     if (connection) {
